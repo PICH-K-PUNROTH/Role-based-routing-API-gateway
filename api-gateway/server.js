@@ -10,16 +10,11 @@ const LOGIN_SERVICE_URL = process.env.LOGIN_SERVICE_URL || "http://localhost:500
 const ADMIN_SERVICE_URL = process.env.ADMIN_SERVICE_URL || "http://localhost:5003";
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:5004";
 
-// No express.json() here on purpose — http-proxy-middleware needs the
-// raw request stream to forward bodies correctly.
-
-// Public routes — no token required
 app.use(
   "/register",
   createProxyMiddleware({
     target: REGISTRATION_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => "/register" + path,
   })
 );
 
@@ -28,18 +23,15 @@ app.use(
   createProxyMiddleware({
     target: LOGIN_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => "/auth" + path,
   })
 );
 
-// Protected routes — JWT + role required
 app.use(
   "/admin",
   verifyToken("admin"),
   createProxyMiddleware({
     target: ADMIN_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => "/admin" + path,
   })
 );
 
@@ -49,7 +41,6 @@ app.use(
   createProxyMiddleware({
     target: USER_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: (path, req) => "/user" + path,
   })
 );
 
